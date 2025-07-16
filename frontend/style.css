@@ -1,0 +1,14 @@
+.action-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+}
+.action-btn-big {
+  font-size: 28px;
+  padding: 15px;
+}
