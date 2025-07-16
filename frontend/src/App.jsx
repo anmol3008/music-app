@@ -14,7 +14,7 @@ export default function App() {
     if (accessToken) {
       window.localStorage.setItem("token", accessToken);
       dispatch({ type: reducerCases.SET_TOKEN, token: accessToken });
-      window.history.pushState({}, null, "/");
+      window.history.pushState({}, null, "/"); // Clean URL without query
     } else {
       const storedToken = window.localStorage.getItem("token");
       if (storedToken && storedToken !== "undefined") {

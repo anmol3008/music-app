@@ -1,71 +1,31 @@
-const express = require('express');
-const SpotifyWebApi = require('spotify-web-api-node');
-const cors = require('cors');
-const mongoose = require('mongoose');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import spotifyAuth from './routes/spotifyAuth.js';
+import mongoose from 'mongoose';
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
 
-// --- Spotify API Setup ---
-const spotifyApi = new SpotifyWebApi({
-  clientId: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: process.env.REDIRECT_URI,
+// Log all incoming requests for debugging
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  next();
 });
 
-// --- Database Connection ---
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.log("DB Connection Error: ", err.message));
+// Mount Spotify auth routes under the /auth/spotify prefix
+app.use('/auth/spotify', spotifyAuth);
 
-// --- ROUTES ---
+// Connect to MongoDB (optional, if you are using it)
+mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
-// Route to start the login process
-app.get('/login', (req, res) => {
-  const scopes = [
-    'streaming',
-    'user-read-email',
-    'user-read-private',
-    'user-library-read',
-    'user-library-modify',
-    'user-read-playback-state',
-    'user-modify-playback-state',
-  ];
-  res.redirect(spotifyApi.createAuthorizeURL(scopes));
-});
-
-// Callback route that Spotify redirects to
-app.get('/callback', (req, res) => {
-  const error = req.query.error;
-  const code = req.query.code;
-
-  if (error) {
-    console.error('Callback Error:', error);
-    res.send(`Callback Error: ${error}`);
-    return;
-  }
-
-  spotifyApi
-    .authorizationCodeGrant(code)
-    .then(data => {
-      const access_token = data.body['access_token'];
-      const refresh_token = data.body['refresh_token'];
-      const expires_in = data.body['expires_in'];
-
-      // Redirect back to the frontend with the token
-      const frontendUrl = process.env.FRONTEND_URL;
-      res.redirect(`${frontendUrl}?access_token=${access_token}`);
-    })
-    .catch(err => {
-      console.error('Error getting Tokens:', err);
-      res.send(`Error getting tokens: ${err}`);
-    });
-});
-
-
-app.listen(process.env.PORT, () => {
-  console.log(`Server started on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });

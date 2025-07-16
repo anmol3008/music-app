@@ -1,10 +1,9 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 export default function Login() {
   const handleClick = () => {
-    // This now points to the simpler /login route on the backend
-    window.location.href = "http://localhost:5000/login";
+    window.location.href = "http://localhost:5000/auth/spotify/login";
   };
 
   return (
@@ -27,9 +26,11 @@ const Container = styled.div`
   width: 100vw;
   background-color: #1db954;
   gap: 5rem;
+
   img {
     height: 20vh;
   }
+
   button {
     padding: 1rem 5rem;
     border-radius: 5rem;
@@ -38,5 +39,9 @@ const Container = styled.div`
     color: #49f585;
     font-size: 1.4rem;
     cursor: pointer;
+
+    &:hover {
+      background-color: #333;
+    }
   }
 `;
